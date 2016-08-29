@@ -1,12 +1,12 @@
 package net.xtion.crm.httplibrary;
 
-import android.database.Observable;
-
-import net.xtion.crm.httplibrary.entity.ResponseEntity;
+import rx.Observable;
 
 /**
- * Created by Amberllo on 2016/8/26.
+ * Created by LYL on 2016/8/29.
  */
-public interface XtionHttpClient<T extends ResponseEntity> {
-    Observable<T> exec(T request);
+public class XtionHttpClient {
+    public static <T extends ResponseEntity> Observable<T> exec(T entity, Object... params){
+       return new ServiceProxy(entity).run(params);
+    }
 }
