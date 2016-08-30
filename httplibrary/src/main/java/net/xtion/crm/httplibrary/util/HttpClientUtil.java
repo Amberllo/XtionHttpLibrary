@@ -1,26 +1,21 @@
-package net.xtion.crm.httplibrary;
+package net.xtion.crm.httplibrary.util;
 
 import android.text.TextUtils;
 import android.util.Log;
 
-import net.xtion.crm.httplibrary.client.MD5Util;
-import net.xtion.crm.httplibrary.exception.SessionFailedException;
-import net.xtion.crm.httplibrary.exception.WebServiceException;
+import net.xtion.crm.httplibrary.Constants;
 
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
@@ -49,74 +44,19 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
+
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 
-public class HttpUtil{
+/**
+ * Created by LYL on 2016/8/30.
+ */
+public class HttpClientUtil {
 
-    public static String execPost(String url, String args, Map<String,String> header) throws Exception {
-
-        url = appendSecurity(url);
-
-        HttpClient hClient = null;
-        try {
-            hClient = getHttpClient();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        HttpPost httpPost = new HttpPost(url);
-        httpPost.setEntity(new StringEntity(args, "UTF-8"));
-        initHeader(httpPost,header);
-        HttpResponse httpResponse = hClient.execute(httpPost);
-
-        return execute(httpResponse);
-    }
-
-    public static String execGet(String url, Map<String,String> header) throws Exception {
-
-        url = appendSecurity(url);
-
-        String requestid = UUID.randomUUID().toString();
-        HttpClient hClient = null;
-        try {
-            hClient = getHttpClient();
-        } catch (Exception e) {
-            //getHttpClient的Exception不用抛
-            e.printStackTrace();
-            return null;
-        }
-
-        HttpGet httpGet = new HttpGet(url);
-        initHeader(httpGet, header);
-        HttpResponse httpResponse = hClient.execute(httpGet);
-        return execute(httpResponse);
-    }
-
-    private static String execute(HttpResponse httpResponse) throws Exception{
-        if (null != httpResponse && null != httpResponse.getStatusLine()) {
-            String responentity = parseResponse(httpResponse);
-            if (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode() < 400) {// 200-300为成功
-                return responentity;
-            } else if (httpResponse.getStatusLine().getStatusCode() == 401) {
-
-                // session过期了
-                throw new SessionFailedException();
-            } else if (httpResponse.getStatusLine().getStatusCode() >= 500){
-                // 服务器错误
-                throw new WebServiceException();
-
-            }else {
-                return responentity;
-            }
-        }
-        return null;
-    }
-
-
-    private static synchronized HttpClient getHttpClient() throws NoSuchAlgorithmException,
+    static synchronized HttpClient getHttpClient() throws NoSuchAlgorithmException,
             CertificateException, IOException, KeyStoreException, KeyManagementException,
             UnrecoverableKeyException {
 
@@ -231,7 +171,7 @@ public class HttpUtil{
         }
     }
 
-    private static String parseResponse(HttpResponse httpResponse) throws IllegalStateException, IOException{
+    static String parseResponse(HttpResponse httpResponse) throws IllegalStateException, IOException{
         boolean isGzip = false;
         Header header = httpResponse.getFirstHeader("Content-Encoding");
         if(header!=null && header.getValue().equals("gzip")){
@@ -257,7 +197,7 @@ public class HttpUtil{
         return responentity;
     }
 
-    private static String appendSecurity(String url) throws MalformedURLException{
+    static String appendSecurity(String url) throws MalformedURLException {
 
         String api = new URL(url).getPath();
         long ts = System.currentTimeMillis()/1000;
@@ -266,7 +206,24 @@ public class HttpUtil{
         return url+String.format("?ts=%d&ex=%d&si=%s", new Object[]{ts,ex,si});
     }
 
-    private static void initHeader(HttpMessage httpmessage,Map<String,String> header){
+
+    static HttpURLConnection getHttpConnection(String serviceUrl) throws Exception{
+
+        URL url = new URL(serviceUrl);
+        HttpURLConnection conn = null;
+        if (serviceUrl.startsWith("https")) {
+            trustAllHttpsCertificates();
+            HttpsURLConnection.setDefaultHostnameVerifier(hv);
+            conn = (HttpsURLConnection) url.openConnection();
+        } else {
+            conn = (HttpURLConnection) url.openConnection();
+        }
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(10000);
+        return conn;
+    }
+
+    static void initHeader(HttpMessage httpmessage, Map<String,String> header){
         Iterator entries = header.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry entry = (Map.Entry) entries.next();
@@ -307,4 +264,6 @@ public class HttpUtil{
         result.put("reqid", UUID.randomUUID().toString());
         return result;
     }
+
+
 }

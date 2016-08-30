@@ -1,8 +1,9 @@
 package net.xtion.crm.entity;
 
 import net.xtion.crm.cache.MemoryCache;
-import net.xtion.crm.httplibrary.HttpUtil;
-import net.xtion.crm.httplibrary.ResponseEntity;
+import net.xtion.crm.httplibrary.util.HttpClientUtil;
+import net.xtion.crm.httplibrary.util.HttpUtil;
+import net.xtion.crm.httplibrary.entity.ResponseEntity;
 
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class CrmResponseEntity extends ResponseEntity{
         String usernumber =  MemoryCache.getInstance().get("usernumber");
         String sessionid = MemoryCache.getInstance().get("sessionid");
         String enterprisenumber = MemoryCache.getInstance().get("enterprisenumber");
-        return HttpUtil.createHeader(devideid,usernumber,sessionid,enterprisenumber);
+        return HttpClientUtil.createHeader(devideid,usernumber,sessionid,enterprisenumber);
     }
 
 

@@ -1,4 +1,6 @@
-package net.xtion.crm.httplibrary;
+package net.xtion.crm.httplibrary.entity;
+
+import net.xtion.crm.httplibrary.util.HttpUtil;
 
 import org.json.JSONException;
 
@@ -20,7 +22,7 @@ public class ResponseEntity<T extends ResponseEntity> {
 		return "";
 	}
 
-	protected String requestString(Object[] params) throws Exception {
+	public String requestString(Object[] params) throws Exception {
 		String json;
 		String url = makeUrl();
 
@@ -39,7 +41,7 @@ public class ResponseEntity<T extends ResponseEntity> {
 
 	}
 
-	protected void onError(T response) throws Exception {}
+	public void onError(T response) throws Exception {}
 
 	protected Map<String,String> header(){
 		return new HashMap<String,String>();

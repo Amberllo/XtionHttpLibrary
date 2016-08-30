@@ -1,4 +1,4 @@
-package net.xtion.crm.httplibrary.client;
+package net.xtion.crm.httplibrary.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;

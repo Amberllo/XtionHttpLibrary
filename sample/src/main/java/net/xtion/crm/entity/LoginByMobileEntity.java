@@ -1,7 +1,7 @@
 package net.xtion.crm.entity;
 
 import net.xtion.crm.Api;
-import net.xtion.crm.httplibrary.ResponseEntity;
+import net.xtion.crm.httplibrary.entity.ResponseEntity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +41,7 @@ public class LoginByMobileEntity extends CrmResponseEntity{
     }
 
     @Override
-    protected String requestString(Object[] params) throws Exception {
+    public String requestString(Object[] params) throws Exception {
         return super.requestString(params);
     }
 

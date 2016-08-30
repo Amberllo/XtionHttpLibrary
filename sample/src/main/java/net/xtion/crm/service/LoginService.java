@@ -7,7 +7,7 @@ import net.xtion.crm.httplibrary.XtionHttpClient;
 import rx.Observable;
 
 /**
- * Created by LYL on 2016/8/25.
+ * Created by Amberllo on 2016/8/25.
  */
 public class LoginService{
 
